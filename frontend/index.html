@@ -1,0 +1,82 @@
+<!doctype html>
+<html class="h-full dark" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZeroLeak Finance — Privacy Runtime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "canvas": "#070B09",
+              "surface": "#0D1512",
+              "surface-container-lowest": "#070B09",
+              "surface-container-low": "#0D1512",
+              "surface-container": "#121E19",
+              "surface-container-high": "#192821",
+              "surface-container-highest": "#22352C",
+              "outline": "#1C2923",
+              "outline-variant": "#283C32",
+              "primary": "#72D6A0",
+              "primary-container": "#163D2D",
+              "secondary": "#4FAF83",
+              "secondary-container": "#0F3223",
+              "on-surface": "#F1F3EF",
+              "on-surface-variant": "#8D9A93",
+              "on-primary": "#070B09",
+              "error": "#ff6b6b",
+              "error-container": "#421b24"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      @layer base {
+        html, body {
+          margin: 0;
+          padding: 0;
+          background-color: #070B09;
+          color: #F1F3EF;
+          font-family: 'Geist', sans-serif;
+        }
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        line-height: 1;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #070B09;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1C2923;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #283C32;
+      }
+    </style>
+  </head>
+  <body class="bg-[#070B09] text-[#F1F3EF] min-h-screen relative overflow-x-hidden selection:bg-[#72D6A0] selection:text-[#070B09] antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

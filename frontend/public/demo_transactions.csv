@@ -1,0 +1,7 @@
+transaction_id,customer_name,email,pan,account_number,location,timestamp,credit_score,merchant,transaction_amount
+TXN-90281,Alice Cooper,alice.cooper@cloudbank.com,ABCDE1234F,9823471029,New York,2026-03-12 14:20:00,740,Apex Electronics,1250.00
+TXN-90282,Bob Vance,bob.vance@refrigeration.com,VWXYZ5678G,1294810293,Chicago,2026-03-12 14:22:15,680,Metro Grocers,42.50
+TXN-90283,Charlie Brown,charlie.brown@peanuts.org,KLMNO9012H,8472910284,San Francisco,2026-03-12 14:25:30,810,Cloud Compute Corp,499.99
+TXN-90284,Diana Prince,diana.prince@themyscira.gov,QRSTU3456J,5610293847,Boston,2026-03-12 14:31:00,790,Sky High Airlines,820.40
+TXN-90285,Edward Norton,edward.norton@fightclub.net,BCDEF7890K,3829104726,Seattle,2026-03-12 14:35:45,620,Coffee Haven,8.75
+
