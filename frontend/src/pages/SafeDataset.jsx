@@ -26,12 +26,37 @@ export default function SafeDataset() {
     if (!sanitizedResult?.content) return null;
     const lines = sanitizedResult.content.split(/\r?\n/).filter(l => l.trim().length > 0);
     if (lines.length === 0) return null;
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+
+    const parseLine = (line) => {
+      const res = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (c === ',' && !inQuotes) {
+          res.push(cur.trim().replace(/^["']|["']$/g, ''));
+          cur = '';
+        } else {
+          cur += c;
+        }
+      }
+      res.push(cur.trim().replace(/^["']|["']$/g, ''));
+      return res;
+    };
+
+    const headers = parseLine(lines[0]);
     const rows = lines.slice(1).map(line => {
-      const vals = line.split(',');
+      const vals = parseLine(line);
       const row = {};
-      headers.forEach((h, i) => {
-        row[h] = vals[i] ? vals[i].trim().replace(/^["']|["']$/g, '') : '';
+      headers.forEach((h, idx) => {
+        row[h] = vals[idx] !== undefined ? vals[idx] : '';
       });
       return row;
     });
@@ -40,24 +65,40 @@ export default function SafeDataset() {
 
   // Build comparative rows from real exposure plan decisions + real sanitized values
   const dynamicRows = useMemo(() => {
+    const originalSample = dataset?.sampleRows && dataset.sampleRows[0] ? dataset.sampleRows[0] : null;
+    const sanitizedSample = parsedSanitized?.rows && parsedSanitized.rows[0] ? parsedSanitized.rows[0] : null;
+
+    const getRawVal = (field) => {
+      if (!originalSample) return '-';
+      if (originalSample[field] !== undefined) return originalSample[field];
+      const match = Object.entries(originalSample).find(([k]) => k.trim().toLowerCase() === field.trim().toLowerCase());
+      return match ? match[1] : '-';
+    };
+
+    const getSanitizedVal = (field) => {
+      if (!sanitizedSample) return null;
+      if (sanitizedSample[field] !== undefined) return sanitizedSample[field];
+      const match = Object.entries(sanitizedSample).find(([k]) => k.trim().toLowerCase() === field.trim().toLowerCase());
+      return match ? match[1] : null;
+    };
+
     if (exposurePlan?.decisions && exposurePlan.decisions.length > 0) {
-      const originalSample = dataset?.sampleRows && dataset.sampleRows[0] ? dataset.sampleRows[0] : {};
-      const sanitizedSample = parsedSanitized?.rows && parsedSanitized.rows[0] ? parsedSanitized.rows[0] : {};
+      return exposurePlan.decisions.map((d) => {
+        const origVal = getRawVal(d.field);
+        const transformedVal = getSanitizedVal(d.field);
 
-      return exposurePlan.decisions.map((d, idx) => {
-        const origVal = originalSample[d.field] || (d.classification === 'PERSON_NAME' ? 'Alice Cooper' : d.classification === 'GOVERNMENT_ID' ? 'ABCDE1234F' : d.classification === 'BANK_ACCOUNT' ? '9823471029' : 'Sample Value');
-        let safeVal = sanitizedSample[d.field];
-
+        let safeVal;
         if (d.action === 'ALLOW') {
-          safeVal = safeVal || origVal;
+          safeVal = transformedVal !== null ? transformedVal : origVal;
         } else if (d.action === 'REDACT') {
-          safeVal = safeVal || '[REDACTED]';
+          safeVal = transformedVal !== null ? transformedVal : '[REDACTED]';
         } else if (d.action === 'TOKENIZE') {
-          safeVal = safeVal || `[TOKEN_${String(idx + 1).padStart(3, '0')}]`;
+          safeVal = transformedVal !== null ? transformedVal : '[TOKENIZED]';
         } else if (d.action === 'GENERALIZE') {
-          safeVal = safeVal || 'Generalized Value';
+          safeVal = transformedVal !== null ? transformedVal : '[GENERALIZED]';
         } else {
-          safeVal = '[STRIPPED / REMOVED]';
+          // REMOVE or BLOCK
+          safeVal = '[REMOVED]';
         }
 
         const icon = d.action === 'ALLOW' ? 'check_circle' : d.action === 'TOKENIZE' ? 'token' : d.action === 'GENERALIZE' ? 'map' : d.action === 'REDACT' ? 'visibility_off' : 'block';
@@ -68,7 +109,7 @@ export default function SafeDataset() {
           original: String(origVal),
           origType: d.classification,
           origRisk: d.action === 'BLOCK' ? 'critical' : d.action === 'REMOVE' ? 'high' : d.action === 'TOKENIZE' ? 'medium' : 'low',
-          safe: safeVal,
+          safe: String(safeVal),
           safeType,
           safeNote: d.reason,
           icon,
@@ -78,68 +119,17 @@ export default function SafeDataset() {
 
     if (!dataset || !dataset.columns || dataset.columns.length === 0) return [];
 
-    return dataset.columns.map((col, idx) => {
-      const lower = col.toLowerCase();
-      const sampleVal = dataset.sampleRows && dataset.sampleRows[0] && dataset.sampleRows[0][col] !== undefined
-        ? String(dataset.sampleRows[0][col])
-        : null;
-
-      if (lower.includes('name') || lower.includes('customer') || lower.includes('user') || lower.includes('holder')) {
-        return {
-          field: col,
-          original: sampleVal || 'Confidential Client Name',
-          origType: 'Direct PII',
-          origRisk: 'high',
-          safe: `[CUSTOMER_${String(idx + 1).padStart(3, '0')}]`,
-          safeType: 'Tokenized',
-          safeNote: 'Same entity mapped to deterministic cryptographic token',
-          icon: 'token'
-        };
-      }
-      if (lower.includes('pan') || lower.includes('ssn') || lower.includes('tax') || lower.includes('gov') || lower.includes('national_id')) {
-        return {
-          field: col,
-          original: sampleVal || 'ABCDE1234F',
-          origType: 'High Risk',
-          origRisk: 'critical',
-          safe: '[REMOVED]',
-          safeType: 'Stripped',
-          safeNote: 'Policy: Excluded by zero-leak rules',
-          icon: 'block'
-        };
-      }
-      if (lower.includes('account') || lower.includes('card') || lower.includes('iban') || lower.includes('bank')) {
-        return {
-          field: col,
-          original: sampleVal || '8392018247',
-          origType: 'Financial Identifier',
-          origRisk: 'medium',
-          safe: `[ACCOUNT_${String(idx + 1).padStart(3, '0')}]`,
-          safeType: 'Tokenized',
-          safeNote: 'Consistent token mapped for ledger verification',
-          icon: 'link'
-        };
-      }
-      if (lower.includes('email') || lower.includes('mail')) {
-        return {
-          field: col,
-          original: sampleVal || 'client@domain.com',
-          origType: 'Direct PII',
-          origRisk: 'high',
-          safe: '[REMOVED]',
-          safeType: 'Stripped',
-          safeNote: 'Direct communication identifier stripped',
-          icon: 'block'
-        };
-      }
+    return dataset.columns.map((col) => {
+      const origVal = getRawVal(col);
+      const transformedVal = getSanitizedVal(col);
       return {
         field: col,
-        original: sampleVal || '42,500.00',
-        origType: 'Analytical Metric',
+        original: String(origVal),
+        origType: 'Attribute',
         origRisk: 'low',
-        safe: sampleVal || '42,500.00',
+        safe: transformedVal !== null ? String(transformedVal) : String(origVal),
         safeType: 'Preserved',
-        safeNote: 'Preserved intact — essential utility for analysis',
+        safeNote: 'Input dataset field',
         icon: 'check_circle'
       };
     });
@@ -465,10 +455,11 @@ export default function SafeDataset() {
                             : 'bg-[#121E19] border-[#1C2923] hover:border-[#72D6A0]/40'
                         }`}
                       >
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[#8D9A93] text-[10px] uppercase tracking-wider">{row.field}</span>
+                          <div className="flex items-center gap-2 mt-0.5">
                             <span
-                              className={`font-semibold text-sm ${
+                              className={`font-semibold text-sm truncate max-w-xs ${
                                 row.safeType === 'Stripped'
                                   ? 'text-[#8D9A93] line-through'
                                   : 'text-[#72D6A0]'
@@ -476,11 +467,11 @@ export default function SafeDataset() {
                             >
                               {row.safe}
                             </span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#163D2D] text-[#72D6A0]">
+                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#163D2D] text-[#72D6A0] shrink-0">
                               {row.safeType}
                             </span>
                           </div>
-                          <span className="text-[#8D9A93] text-[11px] font-body mt-0.5">{row.safeNote}</span>
+                          <span className="text-[#8D9A93] text-[11px] font-body mt-0.5 truncate">{row.safeNote}</span>
                         </div>
                         <span className="material-symbols-outlined text-[#72D6A0] text-[18px]">
                           {row.icon}

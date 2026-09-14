@@ -1,7 +1,8 @@
-transaction_id,customer_name,email,pan,account_number,location,timestamp,credit_score,merchant,transaction_amount
-TXN-90281,Alice Cooper,alice.cooper@cloudbank.com,ABCDE1234F,9823471029,New York,2026-03-12 14:20:00,740,Apex Electronics,1250.00
-TXN-90282,Bob Vance,bob.vance@refrigeration.com,VWXYZ5678G,1294810293,Chicago,2026-03-12 14:22:15,680,Metro Grocers,42.50
-TXN-90283,Charlie Brown,charlie.brown@peanuts.org,KLMNO9012H,8472910284,San Francisco,2026-03-12 14:25:30,810,Cloud Compute Corp,499.99
-TXN-90284,Diana Prince,diana.prince@themyscira.gov,QRSTU3456J,5610293847,Boston,2026-03-12 14:31:00,790,Sky High Airlines,820.40
-TXN-90285,Edward Norton,edward.norton@fightclub.net,BCDEF7890K,3829104726,Seattle,2026-03-12 14:35:45,620,Coffee Haven,8.75
+transaction_amount,merchant_name,transaction_date,location,account_number,customer_id,customer_name,email_address,phone_number,pan_tax_id,api_credential,ip_address
+1250.00,Apex Electronics,2026-03-12 14:20:00,New York NY,9823471029,CUST-901,Alice Cooper,alice.cooper@cloudbank.com,+1-212-555-0143,ABCDE1234F,sk_live_9a8b7c6d5e4f3a2b1c0d,198.51.100.45
+42.50,Metro Grocers,2026-03-12 14:22:15,Chicago IL,1294810293,CUST-902,Bob Vance,bob.vance@refrigeration.com,+1-312-555-0188,VWXYZ5678G,sk_live_8b7c6d5e4f3a2b1c0d9e,203.0.113.19
+499.99,Cloud Compute Corp,2026-03-12 14:25:30,San Francisco CA,8472910284,CUST-903,Charlie Brown,charlie.brown@peanuts.org,+1-415-555-0192,KLMNO9012H,sk_live_7c6d5e4f3a2b1c0d9e8f,192.0.2.78
+820.40,Sky High Airlines,2026-03-12 14:31:00,Boston MA,5610293847,CUST-904,Diana Prince,diana.prince@themyscira.gov,+1-617-555-0164,QRSTU3456J,sk_live_6d5e4f3a2b1c0d9e8f7a,198.51.100.102
+8.75,Coffee Haven,2026-03-12 14:35:45,Seattle WA,3829104726,CUST-905,Edward Norton,edward.norton@fightclub.net,+1-206-555-0111,BCDEF7890K,sk_live_5e4f3a2b1c0d9e8f7a6b,203.0.113.88
+14500.00,Luxury Auto Leasing,2026-03-12 14:40:10,Miami FL,7739102841,CUST-906,Fiona Gallagher,fiona.g@southside.org,+1-305-555-0177,CDEFG8901L,sk_live_4f3a2b1c0d9e8f7a6b5c,192.0.2.144
 

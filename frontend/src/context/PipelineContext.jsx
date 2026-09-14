@@ -114,6 +114,45 @@ export function PipelineProvider({ children }) {
       );
       setExposurePlan(plan);
 
+      // Retrieve existing sampleRows or parse directly from file
+      let sampleRows = [];
+      let columns = analysis.fields.map(f => f.name);
+      try {
+        const saved = localStorage.getItem('zeroleak_dataset');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.sampleRows && parsed.sampleRows.length > 0) {
+            sampleRows = parsed.sampleRows;
+          }
+          if (parsed.columns && parsed.columns.length > 0) {
+            columns = parsed.columns;
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      if (sampleRows.length === 0 && typeof file.slice === 'function') {
+        try {
+          const sliceText = await file.slice(0, 32768).text();
+          const lines = sliceText.split(/\r?\n/).filter(l => l.trim().length > 0);
+          if (lines.length > 1) {
+            const rawHeaders = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+            columns = rawHeaders;
+            sampleRows = lines.slice(1, 6).map(line => {
+              const vals = line.split(',');
+              const obj = {};
+              rawHeaders.forEach((h, i) => {
+                obj[h] = vals[i] ? vals[i].trim().replace(/^["']|["']$/g, '') : '';
+              });
+              return obj;
+            });
+          }
+        } catch (e) {
+          console.warn('Could not extract sample rows from file:', e);
+        }
+      }
+
       // Store dataset metadata for UI convenience
       const formattedSize = file.size > 1024 * 1024
         ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
@@ -124,6 +163,8 @@ export function PipelineProvider({ children }) {
         fileSize: formattedSize,
         rowCount: analysis.row_count,
         columnCount: analysis.field_count,
+        columns,
+        sampleRows,
         purpose,
         recipient,
         fields: analysis.fields,
