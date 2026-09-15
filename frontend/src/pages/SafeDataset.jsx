@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { usePipeline } from '../context/PipelineContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function SafeDataset() {
   const { sanitizedResult, validationResult, exposurePlan, datasetMeta } = usePipeline();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [showAiModal, setShowAiModal] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -200,16 +203,29 @@ export default function SafeDataset() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-lg bg-[#163D2D]/40 border border-[#72D6A0]/30 text-[#72D6A0] text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse"></span>
-              Enclave Live: ENC-08492
+              <span>{user?.email || 'Active'}</span>
             </div>
 
             <Link
-              to="/login"
-              className="p-2 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#72D6A0]/40 text-[#8D9A93] hover:text-[#F1F3EF] transition"
-              title="Switch Account"
+              to="/byok"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#72D6A0]/40 text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition"
+              title="Configure AI Provider (BYOK)"
+            >
+              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">key</span>
+              <span className="hidden sm:inline">AI Provider</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                navigate('/login');
+              }}
+              className="p-2 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#ff6b6b]/40 text-[#8D9A93] hover:text-[#ff6b6b] transition cursor-pointer"
+              title="Sign Out"
             >
               <span className="material-symbols-outlined text-[18px]">logout</span>
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -535,10 +551,10 @@ export default function SafeDataset() {
               </div>
               <div>
                 <h3 className="font-headline text-lg font-bold text-[#F1F3EF]">
-                  Dispatch safe dataset to boundary?
+                  Dispatch safe dataset to recipient?
                 </h3>
                 <p className="text-xs text-[#8D9A93] font-body mt-0.5">
-                  Enforcing strict hardware enclave egress perimeter
+                  Enforcing strict privacy policy controls
                 </p>
               </div>
             </div>

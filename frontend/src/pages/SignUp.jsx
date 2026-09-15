@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { useAuth } from '../context/AuthContext';
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('');
@@ -11,7 +12,15 @@ export default function SignUp() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/upload', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,17 +39,13 @@ export default function SignUp() {
     setIsSubmitting(true);
 
     try {
-      await new Promise(res => setTimeout(res, 700));
-      localStorage.setItem(
-        'zeroleak_user',
-        JSON.stringify({
-          fullName: fullName.trim(),
-          email: email.trim(),
-          organization: organization.trim() || 'Confidential Fund',
-          tier,
-          enclaveId: 'ENC-08492'
-        })
-      );
+      await signup({
+        email: email.trim(),
+        password,
+        full_name: fullName.trim(),
+        organization: organization.trim() || 'Confidential Institution',
+        tier,
+      });
       navigate('/upload');
     } catch (err) {
       setErrorMessage(err?.message || 'Provisioning error occurred.');
@@ -51,9 +56,9 @@ export default function SignUp() {
 
   return (
     <AuthLayout
-      badgeText="Enclave Provisioning"
+      badgeText="Get Started"
       title="Create Account"
-      subtitle="Establish dedicated zero-knowledge compute boundary"
+      subtitle="Set up your secure ZeroLeak Finance workspace"
     >
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5">
         {errorMessage && (
@@ -71,14 +76,14 @@ export default function SignUp() {
         {/* Full Name */}
         <div className="flex flex-col gap-1">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="name">
-            Operator Name
+            Full Name
           </label>
           <input
             id="name"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Dr. Elena Rostova"
+            placeholder="Elena Rostova"
             className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
           />
         </div>
@@ -86,14 +91,14 @@ export default function SignUp() {
         {/* Email */}
         <div className="flex flex-col gap-1">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="email">
-            Institutional Email
+            Work Email
           </label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="elena@apexalpha.io"
+            placeholder="elena@company.com"
             className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
           />
         </div>
@@ -101,14 +106,14 @@ export default function SignUp() {
         {/* Organization */}
         <div className="flex flex-col gap-1">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="org">
-            Entity / Institution
+            Company / Organization
           </label>
           <input
             id="org"
             type="text"
             value={organization}
             onChange={(e) => setOrganization(e.target.value)}
-            placeholder="Apex Alpha Research"
+            placeholder="Alpha Research Group"
             className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
           />
         </div>
@@ -116,7 +121,7 @@ export default function SignUp() {
         {/* Password */}
         <div className="flex flex-col gap-1">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="password">
-            Root Password (min. 8 chars)
+            Password (min. 8 characters)
           </label>
           <input
             id="password"
@@ -128,33 +133,33 @@ export default function SignUp() {
           />
         </div>
 
-        {/* Enclave Tier Selector */}
+        {/* Account Tier Selector */}
         <div className="flex flex-col gap-1 pt-1">
-          <label className="font-mono text-xs text-[#8D9A93]">Security Enclave Tier</label>
+          <label className="font-mono text-xs text-[#8D9A93]">Account Tier</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setTier('institutional')}
-              className={`p-2.5 rounded-xl border text-left transition-all ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 tier === 'institutional'
                   ? 'border-[#72D6A0] bg-[#163D2D]/40 text-[#72D6A0]'
                   : 'border-[#1C2923] bg-[#070B09] text-[#8D9A93] hover:border-[#283C32]'
               }`}
             >
-              <div className="font-mono text-xs font-semibold">Institutional</div>
-              <div className="text-[10px] text-[#8D9A93] mt-0.5">AMD SEV-SNP Enclave</div>
+              <div className="font-mono text-xs font-semibold">Standard Tier</div>
+              <div className="text-[10px] text-[#8D9A93] mt-0.5">Full Privacy Pipeline</div>
             </button>
             <button
               type="button"
               onClick={() => setTier('sovereign')}
-              className={`p-2.5 rounded-xl border text-left transition-all ${
+              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                 tier === 'sovereign'
                   ? 'border-[#72D6A0] bg-[#163D2D]/40 text-[#72D6A0]'
                   : 'border-[#1C2923] bg-[#070B09] text-[#8D9A93] hover:border-[#283C32]'
               }`}
             >
-              <div className="font-mono text-xs font-semibold">Sovereign Air-Gap</div>
-              <div className="text-[10px] text-[#8D9A93] mt-0.5">Hardware HSM + ZK</div>
+              <div className="font-mono text-xs font-semibold">Enterprise Tier</div>
+              <div className="text-[10px] text-[#8D9A93] mt-0.5">Custom Policy Rules</div>
             </button>
           </div>
         </div>
@@ -163,24 +168,24 @@ export default function SignUp() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 w-full py-3 px-4 rounded-xl bg-[#72D6A0] hover:bg-[#4FAF83] text-[#070B09] font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(114,214,160,0.3)] hover:shadow-[0_0_28px_rgba(114,214,160,0.5)] disabled:opacity-50"
+          className="mt-2 w-full py-3 px-4 rounded-xl bg-[#72D6A0] hover:bg-[#4FAF83] text-[#070B09] font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(114,214,160,0.3)] hover:shadow-[0_0_28px_rgba(114,214,160,0.5)] disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? (
             <>
               <span className="w-4 h-4 border-2 border-[#070B09] border-t-transparent rounded-full animate-spin"></span>
-              <span>Deploying Enclave...</span>
+              <span>Creating Account...</span>
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-[18px]">shield_lock</span>
-              <span>Deploy Safe Enclave</span>
+              <span className="material-symbols-outlined text-[18px]">person_add</span>
+              <span>Create Account</span>
             </>
           )}
         </button>
 
         {/* Alternate link */}
         <div className="text-center mt-2 pt-2 border-t border-[#1C2923]">
-          <span className="font-body text-xs text-[#8D9A93]">Already have credentials? </span>
+          <span className="font-body text-xs text-[#8D9A93]">Already have an account? </span>
           <Link
             to="/login"
             className="font-mono text-xs text-[#72D6A0] hover:underline font-semibold"

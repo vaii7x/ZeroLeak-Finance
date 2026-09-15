@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -9,7 +10,17 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const target = location.state?.from?.pathname || '/upload';
+      navigate(target, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,11 +45,9 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      // Simulate authenticating into ZeroLeak Enclave
-      await new Promise(res => setTimeout(res, 600));
-      // Store mock user session
-      localStorage.setItem('zeroleak_user', JSON.stringify({ email: trimmedEmail, enclaveId: 'ENC-08492' }));
-      navigate('/upload');
+      await login(trimmedEmail, password);
+      const destination = location.state?.from?.pathname || '/upload';
+      navigate(destination, { replace: true });
     } catch (err) {
       setErrorMessage(err?.message || 'Authentication error occurred.');
     } finally {
@@ -46,11 +55,12 @@ export default function Login() {
     }
   };
 
+
   return (
     <AuthLayout
-      badgeText="Enclave Authentication"
-      title="Access Terminal"
-      subtitle="Sign in with verified institutional credentials"
+      badgeText="Secure Access"
+      title="Welcome Back"
+      subtitle="Sign in to your ZeroLeak Finance account"
     >
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {errorMessage && (
@@ -68,7 +78,7 @@ export default function Login() {
         {/* Email Field */}
         <div className="flex flex-col gap-1.5">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="email">
-            Institutional Email
+            Email Address
           </label>
           <div className="relative flex items-center">
             <span className="material-symbols-outlined absolute left-3.5 text-[#8D9A93] pointer-events-none text-[18px]">
@@ -80,7 +90,7 @@ export default function Login() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="operator@institution.com"
+              placeholder="operator@company.com"
               className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] transition-all font-body"
             />
           </div>
@@ -90,13 +100,13 @@ export default function Login() {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <label className="font-mono text-xs text-[#8D9A93]" htmlFor="password">
-              Enclave Secret
+              Password
             </label>
             <Link
               to="/forgot-password"
               className="font-mono text-[11px] text-[#72D6A0] hover:underline"
             >
-              Rotate Key?
+              Forgot Password?
             </Link>
           </div>
           <div className="relative flex items-center">
@@ -115,7 +125,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 text-[#8D9A93] hover:text-[#F1F3EF] transition-colors"
+              className="absolute right-3 text-[#8D9A93] hover:text-[#F1F3EF] transition-colors cursor-pointer"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               <span className="material-symbols-outlined text-[18px]">
@@ -129,17 +139,17 @@ export default function Login() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 w-full py-3 px-4 rounded-xl bg-[#72D6A0] hover:bg-[#4FAF83] text-[#070B09] font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(114,214,160,0.3)] hover:shadow-[0_0_28px_rgba(114,214,160,0.5)] disabled:opacity-50"
+          className="mt-2 w-full py-3 px-4 rounded-xl bg-[#72D6A0] hover:bg-[#4FAF83] text-[#070B09] font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(114,214,160,0.3)] hover:shadow-[0_0_28px_rgba(114,214,160,0.5)] disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? (
             <>
               <span className="w-4 h-4 border-2 border-[#070B09] border-t-transparent rounded-full animate-spin"></span>
-              <span>Attesting Enclave...</span>
+              <span>Signing in...</span>
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-[18px]">key</span>
-              <span>Authenticate</span>
+              <span className="material-symbols-outlined text-[18px]">login</span>
+              <span>Sign In</span>
             </>
           )}
         </button>
@@ -151,8 +161,15 @@ export default function Login() {
             to="/signup"
             className="font-mono text-xs text-[#72D6A0] hover:underline font-semibold"
           >
-            Provision Enclave Account
+            Create an Account
           </Link>
+        </div>
+
+        {/* Demo operator hint */}
+        <div className="text-center mt-1">
+          <p className="font-mono text-[11px] text-[#8D9A93]/70">
+            Demo Credentials: <span className="text-[#72D6A0]">demo@zeroleak.finance</span> / <span className="text-[#72D6A0]">ZeroLeak2026!</span>
+          </p>
         </div>
       </form>
     </AuthLayout>

@@ -158,7 +158,7 @@ export default function Sanitization() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D1512]/90 border border-[#1C2923] shadow-sm mb-3.5 backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse"></span>
             <span className="font-mono text-[11px] font-medium uppercase tracking-widest text-[#72D6A0]">
-              {isComplete ? 'Processing Attested' : 'Enclave Runtime Active'}
+              {isComplete ? 'Processing Complete' : 'Privacy Runtime Active'}
             </span>
           </div>
 
@@ -342,10 +342,10 @@ export default function Sanitization() {
 
       {/* Bottom Footer */}
       <footer className="w-full relative z-10 px-6 py-3 flex items-center justify-between text-[11px] font-mono text-[#8D9A93] bg-[#070B09]/70 backdrop-blur-md border-t border-[#1C2923]/60">
-        <div>AIR-GAPPED COMPUTE NODE: #SNP-9842</div>
+        <div>ZeroLeak Finance · Data Transformation Engine</div>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0]"></span>
-          <span>Zero-Knowledge Proof Verified</span>
+          <span>Output Validation Verified</span>
         </div>
       </footer>
     </div>

@@ -61,11 +61,18 @@ export async function analyzeDataset(file, purpose, recipient) {
  * @param {string} recipient
  * @param {Array} fields - List of FieldMetadata { name, type, sensitivity }
  */
-export async function recommendFields(purpose, recipient, fields) {
+export async function recommendFields(purpose, recipient, fields, sessionId = null) {
+  const payload = { purpose, recipient, fields };
+  if (sessionId) payload.session_id = sessionId;
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getStoredToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   const res = await fetch(`${API_BASE}/api/recommend`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ purpose, recipient, fields }),
+    headers,
+    body: JSON.stringify(payload),
   });
   return handleResponse(res);
 }
@@ -164,3 +171,157 @@ export async function validateDataset(file, exposurePlanId, approved, plan) {
   });
   return handleResponse(res);
 }
+
+/**
+ * Helper to retrieve stored JWT auth token
+ */
+export function getStoredToken() {
+  try {
+    return localStorage.getItem('zeroleak_token') || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Authenticate operator with email and password
+ * @param {string} email
+ * @param {string} password
+ */
+export async function loginUser(email, password) {
+  const res = await fetch(`${API_BASE}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Provision new operator account
+ * @param {object} userData - { email, password, full_name, organization, tier }
+ */
+export async function signUpUser(userData) {
+  const res = await fetch(`${API_BASE}/api/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Fetch authenticated operator profile using Bearer token
+ * @param {string} token
+ */
+export async function fetchCurrentUser(token) {
+  const authToken = token || getStoredToken();
+  if (!authToken) {
+    throw new Error('No authentication token provided.');
+  }
+
+  const res = await fetch(`${API_BASE}/api/auth/me`, {
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Terminate operator session
+ */
+export async function logoutUser() {
+  try {
+    const token = getStoredToken();
+    if (token) {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    }
+  } catch (e) {
+    console.warn('Logout notification failed:', e);
+  } finally {
+    localStorage.removeItem('zeroleak_token');
+    localStorage.removeItem('zeroleak_user');
+  }
+}
+
+/**
+ * Fetch the authenticated operator's active BYOK AI configuration
+ */
+export async function fetchUserByok() {
+  const token = getStoredToken();
+  if (!token) {
+    throw new Error('Authentication required to access BYOK settings.');
+  }
+
+  const res = await fetch(`${API_BASE}/api/byok`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Save or update the operator's BYOK provider key and model
+ * @param {object} byokData - { provider, model, api_key }
+ */
+export async function saveUserByok(byokData) {
+  const token = getStoredToken();
+  if (!token) {
+    throw new Error('Authentication required to save BYOK settings.');
+  }
+
+  const res = await fetch(`${API_BASE}/api/byok`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(byokData),
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Remove/purge the operator's stored BYOK key
+ */
+export async function deleteUserByok() {
+  const token = getStoredToken();
+  if (!token) {
+    throw new Error('Authentication required to remove BYOK settings.');
+  }
+
+  const res = await fetch(`${API_BASE}/api/byok`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Test connectivity and API key validity against the specified provider
+ * @param {object} testData - { provider, model, api_key }
+ */
+export async function testUserByok(testData) {
+  const res = await fetch(`${API_BASE}/api/byok/test`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(testData),
+  });
+  return handleResponse(res);
+}
+
+

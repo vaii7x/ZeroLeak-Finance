@@ -8,38 +8,110 @@ import SafeDataset from './pages/SafeDataset';
 import Sanitization from './pages/Sanitization';
 import ExposurePlan from './pages/ExposurePlan';
 import DataUpload from './pages/DataUpload';
-import ClickSpark from './components/ClickSpark';
+import ByokSettings from './pages/ByokSettings';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 import { PipelineProvider } from './context/PipelineContext';
 
 export default function App() {
   return (
-    <PipelineProvider>
-      <BrowserRouter>
-        <ClickSpark
-        sparkColor="#72D6A0"
-        sparkSize={10}
-        sparkRadius={20}
-        sparkCount={8}
-        duration={400}
-      >
-        <Routes>
-          <Route path="/" element={<FrontPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/upload" element={<DataUpload />} />
-          <Route path="/prepare" element={<DataUpload />} />
-          <Route path="/data-upload" element={<DataUpload />} />
-          <Route path="/exposure-plan" element={<ExposurePlan />} />
-          <Route path="/sanitization" element={<Sanitization />} />
-          <Route path="/loading" element={<Sanitization />} />
-          <Route path="/processing" element={<Sanitization />} />
-          <Route path="/safe-dataset" element={<SafeDataset />} />
-          <Route path="/dashboard" element={<Navigate to="/safe-dataset" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </ClickSpark>
-    </BrowserRouter>
-  </PipelineProvider>
+    <AuthProvider>
+      <PipelineProvider>
+        <BrowserRouter>
+          <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<FrontPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+
+              {/* Protected Enclave Routes */}
+              <Route
+                path="/upload"
+                element={
+                  <ProtectedRoute>
+                    <DataUpload />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/prepare"
+                element={
+                  <ProtectedRoute>
+                    <DataUpload />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/data-upload"
+                element={
+                  <ProtectedRoute>
+                    <DataUpload />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/exposure-plan"
+                element={
+                  <ProtectedRoute>
+                    <ExposurePlan />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/sanitization"
+                element={
+                  <ProtectedRoute>
+                    <Sanitization />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/loading"
+                element={
+                  <ProtectedRoute>
+                    <Sanitization />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/processing"
+                element={
+                  <ProtectedRoute>
+                    <Sanitization />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/safe-dataset"
+                element={
+                  <ProtectedRoute>
+                    <SafeDataset />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/byok"
+                element={
+                  <ProtectedRoute>
+                    <ByokSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings/ai"
+                element={
+                  <ProtectedRoute>
+                    <ByokSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/dashboard" element={<Navigate to="/safe-dataset" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </BrowserRouter>
+      </PipelineProvider>
+    </AuthProvider>
   );
 }
+

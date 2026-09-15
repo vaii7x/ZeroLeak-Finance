@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePipeline } from '../context/PipelineContext';
+import { useAuth } from '../context/AuthContext';
 
 const INITIAL_FIELDS = [
   {
@@ -109,6 +110,7 @@ const INITIAL_FIELDS = [
 
 export default function ExposurePlan() {
   const { exposurePlan, approveCurrentPlan, datasetMeta } = usePipeline();
+  const { user, logout } = useAuth();
 
   const getDataset = () => {
     try {
@@ -413,12 +415,31 @@ export default function ExposurePlan() {
             </Link>
           </nav>
 
-          {/* Right side: Enclave status */}
+          {/* Right side: Enclave status and user */}
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse"></span>
-              Enclave Active
+              <span className="text-[#F1F3EF] truncate max-w-[160px]">{user?.email || 'Active'}</span>
             </span>
+            <Link
+              to="/byok"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#72D6A0]/40 text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition"
+              title="Configure AI Provider (BYOK)"
+            >
+              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">key</span>
+              <span className="hidden sm:inline">AI Provider</span>
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                navigate('/login');
+              }}
+              className="p-2 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#ff6b6b]/40 text-[#8D9A93] hover:text-[#ff6b6b] transition cursor-pointer"
+              title="Sign Out"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+            </button>
           </div>
         </div>
       </header>
@@ -802,7 +823,7 @@ export default function ExposurePlan() {
                 disabled={isApproving}
                 className="w-full sm:w-auto px-8 py-3 rounded-xl bg-[#F1F3EF] hover:bg-[#72D6A0] text-[#070B09] font-sans text-sm font-semibold tracking-wide flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(241,243,239,0.15)] hover:shadow-[0_0_24px_rgba(114,214,160,0.4)] transition-all cursor-pointer disabled:opacity-50"
               >
-                <span>{isApproving ? 'Approving on Supabase...' : 'Approve & Prepare'}</span>
+                <span>{isApproving ? 'Approving Plan...' : 'Approve & Prepare'}</span>
                 <span className="material-symbols-outlined text-[18px]">
                   {isApproving ? 'sync' : 'arrow_forward'}
                 </span>
@@ -885,8 +906,8 @@ export default function ExposurePlan() {
       {/* MINIMAL FOOTER */}
       <footer className="w-full border-t border-[#16221D] py-6 bg-[#070B09]">
         <div className="max-w-[1400px] mx-auto px-6 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-[#506057]">
-          <span>ZeroLeak Finance · Isolation Specification</span>
-          <span>Sovereign Enclave Compliant</span>
+          <span>ZeroLeak Finance · Exposure Plan Specification</span>
+          <span>Policy Enforcement Verified</span>
         </div>
       </footer>
     </div>

@@ -131,6 +131,16 @@
   z-index: 1;
 }
 
+.card-nav-content.single-card {
+  justify-content: center;
+}
+
+.card-nav-content.single-card .nav-card {
+  max-width: 440px;
+  width: 100%;
+  flex: none;
+}
+
 .card-nav.open .card-nav-content {
   visibility: visible;
   pointer-events: auto;

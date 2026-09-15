@@ -4,9 +4,9 @@ import DotField from './DotField';
 
 export default function AuthLayout({
   children,
-  badgeText = 'ZeroLeak Sentinel',
-  title = 'Enclave Access',
-  subtitle = 'Authenticate into confidential financial runtime',
+  badgeText = 'Secure Authentication',
+  title = 'Sign In',
+  subtitle = 'Authenticate into ZeroLeak Finance',
 }) {
   return (
     <div className="bg-[#070B09] font-body text-[#F1F3EF] min-h-screen relative overflow-hidden flex flex-col justify-between selection:bg-[#72D6A0] selection:text-[#070B09]">
@@ -40,9 +40,9 @@ export default function AuthLayout({
         </Link>
 
         <div className="flex items-center gap-2 text-[#8D9A93]">
-          <span className="material-symbols-outlined text-[18px] text-[#72D6A0]">shield_lock</span>
+          <span className="material-symbols-outlined text-[18px] text-[#72D6A0]">lock</span>
           <span className="font-mono text-xs tracking-wider uppercase text-[#8D9A93] hidden sm:inline">
-            Air-Gapped Enclave
+            Encrypted Session
           </span>
         </div>
       </header>
@@ -90,7 +90,7 @@ export default function AuthLayout({
 
       {/* Bottom Footer */}
       <footer className="w-full relative z-10 px-6 py-2.5 flex items-center justify-between text-[11px] font-mono text-[#8D9A93]">
-        <div>CRYPTOGRAPHIC ENCLAVE ATTESTED</div>
+        <div>ZEROLEAK FINANCE · SECURE RUNTIME</div>
         <Link to="/" className="hover:text-[#72D6A0] transition-colors">
           Return to home →
         </Link>

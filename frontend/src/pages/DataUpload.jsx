@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePipeline } from '../context/PipelineContext';
+import { useAuth } from '../context/AuthContext';
 
 const PURPOSE_CHIPS = [
   'Fraud analysis',
@@ -25,6 +26,7 @@ const RECIPIENT_OPTIONS = [
 
 export default function DataUpload() {
   const { rawFile, setRawFile, runFullAnalysis, exposurePlan } = usePipeline();
+  const { user, logout } = useAuth();
 
   const getInitial = () => {
     try {
@@ -250,18 +252,36 @@ export default function DataUpload() {
             </span>
           </Link>
           <span className="text-[#3E4942] font-mono text-xs">/</span>
-          <span className="text-[#8D9A93] font-mono text-xs">PII Cloaking Enclave</span>
+          <span className="text-[#8D9A93] font-mono text-xs">Data Workspace</span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse"></span>
-            <span className="hidden sm:inline">Hardware Enclave Active</span>
-            <span className="sm:hidden">Active</span>
+            <span className="text-[#F1F3EF] truncate max-w-[130px] sm:max-w-[200px]">{user?.email || 'Active'}</span>
           </div>
           <Link
+            to="/byok"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#72D6A0]/40 text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition"
+            title="Configure AI Provider (BYOK)"
+          >
+            <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">key</span>
+            <span className="hidden sm:inline">AI Provider</span>
+          </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              await logout();
+              navigate('/login');
+            }}
+            className="p-1.5 rounded-lg bg-[#0D1512] border border-[#1C2923] hover:border-[#ff6b6b]/40 text-[#8D9A93] hover:text-[#ff6b6b] transition cursor-pointer"
+            title="Sign Out"
+          >
+            <span className="material-symbols-outlined text-[16px]">logout</span>
+          </button>
+          <Link
             to="/exposure-plan"
-            className="text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition-colors"
+            className="text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition-colors ml-1"
           >
             Skip to Plan →
           </Link>
@@ -493,7 +513,7 @@ export default function DataUpload() {
             <div className="flex items-start justify-between border-b border-[#1C2923] pb-4">
               <div className="flex flex-col gap-1">
                 <span className="font-mono text-xs uppercase tracking-wider text-[#72D6A0] font-medium">
-                  Zero-Knowledge Compiler
+                  Privacy Engine
                 </span>
                 <h3 className="font-headline text-lg text-[#F1F3EF] font-semibold">
                   Analyzing your dataset
@@ -541,7 +561,7 @@ export default function DataUpload() {
                   <span className="material-symbols-outlined text-base text-[#72D6A0]">check_circle</span>
                 )}
                 <span className="text-[#F1F3EF] font-medium">
-                  1. Dataset Analysis &amp; Field Classification (CSV streaming)
+                  1. Dataset Analysis &amp; Field Classification
                 </span>
               </div>
 
@@ -555,7 +575,7 @@ export default function DataUpload() {
                   <span className="w-4 h-4 rounded-full border border-[#506057] inline-block" />
                 )}
                 <span className="text-[#F1F3EF] font-medium">
-                  2. Advisory AI Necessity Recommendations (MockProvider)
+                  2. Advisory AI Necessity Recommendations
                 </span>
               </div>
 
@@ -581,19 +601,19 @@ export default function DataUpload() {
                   <span className="w-4 h-4 rounded-full border border-[#506057] inline-block" />
                 )}
                 <span className={analysisStep >= 4 ? 'text-[#72D6A0] font-medium' : 'text-[#8D9A93]'}>
-                  4. Reviewable Exposure Plan Synthesized ({exposurePlan ? `${exposurePlan.summary.total_fields} fields · ${exposurePlan.summary.protected_fields} protected` : 'Enclave ready'})
+                  4. Reviewable Exposure Plan Synthesized ({exposurePlan ? `${exposurePlan.summary.total_fields} fields · ${exposurePlan.summary.protected_fields} protected` : 'Ready'})
                 </span>
               </div>
             </div>
 
-            {/* Cryptographic Plan Info */}
+            {/* Exposure Plan Info */}
             <div className="bg-[#070B09] p-3 rounded-xl border border-[#1C2923] font-mono text-[11px] text-[#8D9A93] flex flex-col gap-1">
               <div className="flex items-center justify-between text-[#506057]">
                 <span className="uppercase tracking-wider">EXPOSURE PLAN ID</span>
                 <span>STATUS: {exposurePlan?.status || 'INITIALIZING'}</span>
               </div>
               <span className="text-[#72D6A0] font-mono truncate">
-                {exposurePlan?.exposure_plan_id || 'Generating enclave UUID...'}
+                {exposurePlan?.exposure_plan_id || 'Generating Plan ID...'}
               </span>
             </div>
 

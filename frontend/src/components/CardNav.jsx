@@ -73,7 +73,7 @@ const CardNav = ({
         return topBar + contentHeight + padding;
       }
     }
-    return 270;
+    return (items && items.length === 1) ? 200 : 250;
   };
 
   const createTimeline = () => {
@@ -191,7 +191,9 @@ const CardNav = ({
           </Link>
 
           <div className="flex items-center gap-3">
-            {showAuth ? (
+            {rightElement ? (
+              rightElement
+            ) : showAuth ? (
               <>
                 <Link
                   to="/login"
@@ -209,18 +211,11 @@ const CardNav = ({
                   </Link>
                 )}
               </>
-            ) : rightElement ? (
-              rightElement
-            ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#163D2D]/40 border border-[#72D6A0]/30 text-[#72D6A0] text-xs font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse" />
-                <span className="hidden sm:inline">Enclave Active</span>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
 
-        <div className="card-nav-content" aria-hidden={!isExpanded}>
+        <div className={`card-nav-content ${(items || []).length === 1 ? 'single-card' : ''}`} aria-hidden={!isExpanded}>
           {(items || []).slice(0, 3).map((item, idx) => (
             <div
               key={`${item.label}-${idx}`}
@@ -240,7 +235,8 @@ const CardNav = ({
                       className="nav-card-link"
                       to={lnk.href}
                       aria-label={lnk.ariaLabel || lnk.label}
-                      onClick={() => {
+                      onClick={(e) => {
+                        if (lnk.onClick) lnk.onClick(e);
                         if (isExpanded) toggleMenu();
                       }}
                     >
@@ -253,8 +249,15 @@ const CardNav = ({
                       className="nav-card-link"
                       href={lnk.href || '#'}
                       aria-label={lnk.ariaLabel || lnk.label}
-                      target={lnk.external ? '_blank' : undefined}
-                      rel={lnk.external ? 'noopener noreferrer' : undefined}
+                      target={lnk.target || (lnk.onClick ? '_self' : '_blank')}
+                      rel={lnk.target ? 'noopener noreferrer' : undefined}
+                      onClick={(e) => {
+                        if (lnk.onClick) {
+                          e.preventDefault();
+                          lnk.onClick(e);
+                        }
+                        if (isExpanded) toggleMenu();
+                      }}
                     >
                       <ArrowUpRight className="nav-card-link-icon" />
                       <span>{lnk.label}</span>
