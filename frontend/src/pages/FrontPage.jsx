@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CardNav from '../components/CardNav';
+import ParticleText from '../components/ParticleText';
 import { useAuth } from '../context/AuthContext';
 
 export default function FrontPage() {
@@ -121,10 +122,28 @@ export default function FrontPage() {
             </span>
           </div>
 
-          {/* Crisp, Bold Title */}
-          <h1 className="font-headline font-bold text-5xl sm:text-7xl md:text-8xl tracking-tight text-[#F1F3EF] leading-[1.04]">
-            ZeroLeak <span className="text-[#72D6A0]">Finance</span>
-          </h1>
+          {/* ParticleText Animated Logo Title */}
+          <div className="w-full max-w-5xl h-[120px] sm:h-[150px] md:h-[180px] lg:h-[210px] flex items-center justify-center">
+            <ParticleText
+              text="ZeroLeak Finance"
+              particleSize={2.4}
+              density={5.5}
+              color="#F1F3EF"
+              highlightColor="#72D6A0"
+              scatter={130}
+              gatherDuration={1100}
+              stagger={250}
+              pointerRepel={60}
+              repelRadius={140}
+              idleDrift={0.4}
+              trigger="mount"
+              fontSize="clamp(3.6rem, 9.5vw, 7.8rem)"
+              fontWeight={800}
+              fontFamily="'Space Grotesk', sans-serif"
+              glow={true}
+              className="w-full h-full"
+            />
+          </div>
 
           {/* Core Value Proposition */}
           <div className="flex flex-col items-center gap-3">
