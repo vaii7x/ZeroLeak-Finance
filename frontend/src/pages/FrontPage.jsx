@@ -5,7 +5,7 @@ import ParticleText from '../components/ParticleText';
 import { useAuth } from '../context/AuthContext';
 
 export default function FrontPage() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -13,42 +13,29 @@ export default function FrontPage() {
     navigate('/');
   };
 
-  // Pre-login: ONLY Account section
-  // Post-login: Data Workspace, AI Configuration, and Account details
+  // Minimal necessary navigation items
   const navItems = isAuthenticated
     ? [
         {
-          label: "Data Workspace",
+          label: "Workspace",
           bgColor: "#0D1512",
           textColor: "#F1F3EF",
           labelColor: "#72D6A0",
           links: [
-            { label: "Upload Dataset", href: "/upload", ariaLabel: "Upload financial dataset" },
-            { label: "Exposure Plan", href: "/exposure-plan", ariaLabel: "Review exposure plan" },
-            { label: "Safe Dataset", href: "/safe-dataset", ariaLabel: "Export safe dataset" }
+            { label: "Upload & Run", href: "/upload", ariaLabel: "Data Workspace" },
+            { label: "AI Provider (BYOK)", href: "/byok", ariaLabel: "Configure AI Provider" }
           ]
         },
         {
-          label: "AI Configuration",
+          label: "Account",
           bgColor: "#0D1512",
           textColor: "#F1F3EF",
           labelColor: "#72D6A0",
           links: [
-            { label: "AI Provider (BYOK)", href: "/byok", ariaLabel: "Configure BYOK AI Provider" }
-          ]
-        },
-        {
-          label: user?.full_name || user?.email || "Account",
-          bgColor: "#0D1512",
-          textColor: "#F1F3EF",
-          labelColor: "#72D6A0",
-          links: [
-            { label: "Open Workspace", href: "/upload", ariaLabel: "Open data workspace" },
-            { label: "AI Settings", href: "/byok", ariaLabel: "AI Provider settings" },
             {
               label: "Sign Out",
               href: "#",
-              ariaLabel: "Sign out of account",
+              ariaLabel: "Sign out",
               onClick: handleLogout
             }
           ]
@@ -61,18 +48,14 @@ export default function FrontPage() {
           textColor: "#F1F3EF",
           labelColor: "#72D6A0",
           links: [
-            { label: "Log In", href: "/login", ariaLabel: "Log in to ZeroLeak" },
-            { label: "Create Account", href: "/signup", ariaLabel: "Create a ZeroLeak account" }
+            { label: "Log In", href: "/login", ariaLabel: "Log in" },
+            { label: "Create Account", href: "/signup", ariaLabel: "Create account" }
           ]
         }
       ];
 
   const authenticatedRightElement = (
-    <div className="flex items-center gap-2.5">
-      <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93]">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0]" />
-        <span className="text-[#F1F3EF] truncate max-w-[150px]">{user?.email || 'Operator'}</span>
-      </div>
+    <div className="flex items-center gap-2">
       <Link
         to="/upload"
         className="px-4 py-1.5 rounded-full bg-[#72D6A0] hover:bg-[#4FAF83] text-[#070B09] font-mono text-xs font-semibold uppercase tracking-wider transition-all shadow-[0_0_14px_rgba(114,214,160,0.3)] hover:shadow-[0_0_20px_rgba(114,214,160,0.5)]"
@@ -92,10 +75,8 @@ export default function FrontPage() {
 
   return (
     <div className="min-h-screen w-full relative bg-[#070B09] flex flex-col justify-between items-center selection:bg-[#72D6A0] selection:text-[#070B09] font-body antialiased overflow-x-hidden">
-      
-      {/* Subtle modern dark grid & ambient gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(114,214,160,0.12),rgba(7,11,9,0))] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#16221D0D_1px,transparent_1px),linear-gradient(to_bottom,#16221D0D_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] pointer-events-none" />
+      {/* Subtle modern dark ambient gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(114,214,160,0.07),rgba(7,11,9,0))] pointer-events-none" />
 
       {/* Top Floating CardNav */}
       <header className="relative z-30 w-full pt-6 px-4 sm:px-10 flex justify-center">
@@ -110,12 +91,12 @@ export default function FrontPage() {
         />
       </header>
 
-      {/* Center Hero Viewport */}
-      <main className="relative z-10 w-full flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-20">
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center gap-6">
+      {/* Center Hero Viewport with natural flex flow */}
+      <main className="relative z-10 w-full flex-1 flex flex-col items-center justify-center py-10 sm:py-16 px-4">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center gap-6 sm:gap-7">
           
           {/* Status Eyebrow */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0D1512] border border-[#1C2923] backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0D1512]/90 border border-[#1C2923] backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.4)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0] animate-pulse" />
             <span className="font-mono text-[11px] tracking-widest text-[#72D6A0] uppercase font-medium">
               Financial Privacy Runtime
@@ -156,24 +137,8 @@ export default function FrontPage() {
             </p>
           </div>
 
-          {/* Feature Highlights */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <div className="px-3.5 py-1.5 rounded-xl bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">verified</span>
-              <span>Purpose-Bound Filtering</span>
-            </div>
-            <div className="px-3.5 py-1.5 rounded-xl bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">tune</span>
-              <span>Deterministic Policies</span>
-            </div>
-            <div className="px-3.5 py-1.5 rounded-xl bg-[#0D1512] border border-[#1C2923] text-xs font-mono text-[#8D9A93] flex items-center gap-2">
-              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">key</span>
-              <span>Bring Your Own Key</span>
-            </div>
-          </div>
-
           {/* Dynamic Action Buttons */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-4">
             {isAuthenticated ? (
               <>
                 <Link
@@ -217,17 +182,28 @@ export default function FrontPage() {
               </>
             )}
           </div>
+
+          {/* Quick Explainer Link */}
+          <div className="mt-1">
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0D1512]/80 hover:bg-[#0D1512] border border-[#1C2923] hover:border-[#72D6A0]/40 text-xs font-mono text-[#8D9A93] hover:text-[#72D6A0] transition-all duration-200"
+            >
+              <span className="material-symbols-outlined text-[15px] text-[#72D6A0]">info</span>
+              <span>How It Works & Architecture</span>
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </Link>
+          </div>
         </div>
       </main>
 
-      {/* Clean, Modern Footer */}
-      <footer className="relative z-10 w-full py-6 px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#8D9A93] font-mono border-t border-[#1C2923]/40">
-        <div>© 2026 ZeroLeak Finance · Context-Aware Privacy Runtime</div>
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#72D6A0]"></span>
-          <span>End-to-End Data Protection</span>
-        </div>
+      {/* Subtle Bottom Trust Label */}
+      <footer className="relative z-10 py-5 w-full text-center pointer-events-none">
+        <span className="font-mono text-[11px] text-[#425048] tracking-wider uppercase">
+          ZeroLeak Protocol · Zero Trust Privacy Runtime
+        </span>
       </footer>
+
     </div>
   );
 }

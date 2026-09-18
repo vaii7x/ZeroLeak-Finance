@@ -9,6 +9,7 @@ import Sanitization from './pages/Sanitization';
 import ExposurePlan from './pages/ExposurePlan';
 import DataUpload from './pages/DataUpload';
 import ByokSettings from './pages/ByokSettings';
+import About from './pages/About';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { PipelineProvider } from './context/PipelineContext';
@@ -21,6 +22,8 @@ export default function App() {
           <Routes>
               {/* Public Routes */}
               <Route path="/" element={<FrontPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/architecture" element={<About />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

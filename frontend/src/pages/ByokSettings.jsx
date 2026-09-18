@@ -504,7 +504,7 @@ export default function ByokSettings() {
           <div className="space-y-1">
             <p className="text-[#F1F3EF] font-medium">Privacy Architecture Guarantee</p>
             <p className="leading-relaxed text-[#8D9A93]/90">
-              Only field metadata and stated recipient context are transmitted during analysis. Raw financial figures, customer names, card numbers, and CSV records are stripped at the privacy boundary and are never sent to your AI provider or PRISM.
+              Only field metadata and stated recipient context are transmitted during analysis. Raw financial figures, customer names, card numbers, and CSV records are stripped at the privacy boundary and are never sent to your AI provider.
             </p>
           </div>
         </div>

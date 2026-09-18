@@ -90,7 +90,7 @@ export default function Login() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="operator@company.com"
+              placeholder="you@example.com"
               className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] transition-all font-body"
             />
           </div>

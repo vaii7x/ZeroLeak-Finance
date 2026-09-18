@@ -4,11 +4,8 @@ import AuthLayout from '../components/AuthLayout';
 import { useAuth } from '../context/AuthContext';
 
 export default function SignUp() {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [tier, setTier] = useState('institutional');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,13 +23,24 @@ export default function SignUp() {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!fullName.trim() || !email.trim() || !password) {
-      setErrorMessage('Please fill in all mandatory fields.');
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setErrorMessage('Please enter your email address.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage('Please enter a password.');
       return;
     }
 
     if (password.length < 8) {
-      setErrorMessage('Enclave password must be at least 8 characters long.');
+      setErrorMessage('Password must be at least 8 characters long.');
       return;
     }
 
@@ -40,15 +48,13 @@ export default function SignUp() {
 
     try {
       await signup({
-        email: email.trim(),
+        email: trimmedEmail,
         password,
-        full_name: fullName.trim(),
-        organization: organization.trim() || 'Confidential Institution',
-        tier,
+        full_name: trimmedEmail.split('@')[0],
       });
       navigate('/upload');
     } catch (err) {
-      setErrorMessage(err?.message || 'Provisioning error occurred.');
+      setErrorMessage(err?.message || 'Failed to create account.');
     } finally {
       setIsSubmitting(false);
     }
@@ -58,9 +64,9 @@ export default function SignUp() {
     <AuthLayout
       badgeText="Get Started"
       title="Create Account"
-      subtitle="Set up your secure ZeroLeak Finance workspace"
+      subtitle="Set up your ZeroLeak Finance account"
     >
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3.5">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {errorMessage && (
           <div
             role="alert"
@@ -73,94 +79,45 @@ export default function SignUp() {
           </div>
         )}
 
-        {/* Full Name */}
-        <div className="flex flex-col gap-1">
-          <label className="font-mono text-xs text-[#8D9A93]" htmlFor="name">
-            Full Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Elena Rostova"
-            className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
-          />
-        </div>
-
         {/* Email */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="email">
-            Work Email
+            Email Address
           </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="elena@company.com"
-            className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
-          />
-        </div>
-
-        {/* Organization */}
-        <div className="flex flex-col gap-1">
-          <label className="font-mono text-xs text-[#8D9A93]" htmlFor="org">
-            Company / Organization
-          </label>
-          <input
-            id="org"
-            type="text"
-            value={organization}
-            onChange={(e) => setOrganization(e.target.value)}
-            placeholder="Alpha Research Group"
-            className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
-          />
+          <div className="relative flex items-center">
+            <span className="material-symbols-outlined absolute left-3.5 text-[#8D9A93] pointer-events-none text-[18px]">
+              mail
+            </span>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] transition-all font-body"
+            />
+          </div>
         </div>
 
         {/* Password */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="font-mono text-xs text-[#8D9A93]" htmlFor="password">
             Password (min. 8 characters)
           </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl px-3.5 py-2 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] font-body"
-          />
-        </div>
-
-        {/* Account Tier Selector */}
-        <div className="flex flex-col gap-1 pt-1">
-          <label className="font-mono text-xs text-[#8D9A93]">Account Tier</label>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setTier('institutional')}
-              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                tier === 'institutional'
-                  ? 'border-[#72D6A0] bg-[#163D2D]/40 text-[#72D6A0]'
-                  : 'border-[#1C2923] bg-[#070B09] text-[#8D9A93] hover:border-[#283C32]'
-              }`}
-            >
-              <div className="font-mono text-xs font-semibold">Standard Tier</div>
-              <div className="text-[10px] text-[#8D9A93] mt-0.5">Full Privacy Pipeline</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTier('sovereign')}
-              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                tier === 'sovereign'
-                  ? 'border-[#72D6A0] bg-[#163D2D]/40 text-[#72D6A0]'
-                  : 'border-[#1C2923] bg-[#070B09] text-[#8D9A93] hover:border-[#283C32]'
-              }`}
-            >
-              <div className="font-mono text-xs font-semibold">Enterprise Tier</div>
-              <div className="text-[10px] text-[#8D9A93] mt-0.5">Custom Policy Rules</div>
-            </button>
+          <div className="relative flex items-center">
+            <span className="material-symbols-outlined absolute left-3.5 text-[#8D9A93] pointer-events-none text-[18px]">
+              lock
+            </span>
+            <input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              className="w-full bg-[#070B09] border border-[#1C2923] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#F1F3EF] placeholder-[#8D9A93]/50 focus:outline-none focus:border-[#72D6A0] focus:ring-1 focus:ring-[#72D6A0] transition-all font-body"
+            />
           </div>
         </div>
 
